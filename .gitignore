@@ -1,0 +1,4 @@
+# Project exclude paths
+/sportClub_Consumer/target/
+/sportClub_Entity/target/
+/sportClub_UserLoginAndRegisterProvider/target/

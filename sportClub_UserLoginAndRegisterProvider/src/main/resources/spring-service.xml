@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--spring 的配置 约束文件用到哪个引入哪个 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!--扫描要ioc的包-->
+    <context:component-scan base-package="com.sport.provider.service.provider"/>
+
+
+    <import resource="spring-dao.xml"/>
+    <!--配置事务-->
+    <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"/>
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="dataSourceTransactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" isolation="SERIALIZABLE" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config proxy-target-class="false">
+        <aop:pointcut id="ap" expression="execution(* com.sport.provider.service.*.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="ap"/>
+    </aop:config>
+
+
+    <dubbo:application name="userProvider"/>
+    <dubbo:registry address="nacos://47.100.56.197:8848"/>
+    <dubbo:protocol name="dubbo" port="20880"/>
+    <dubbo:service interface="com.sport.provider.service.UserService" ref="userProvider"/>
+
+</beans>
